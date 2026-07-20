@@ -31,9 +31,10 @@ BASE_DIR = API_DIR.parent.parent  # MiDataset/
 # Buscamos el archivo de pesos del modelo de forma inteligente para evitar errores
 # si el usuario mueve la carpeta de la API adentro o afuera de 'MiDataset'.
 POSIBLES_RUTAS_MODELO = [
-    BASE_DIR / 'modelo_b1.pth',                      # Si 'modelo' está dentro de MiDataset/
-    BASE_DIR / 'MiDataset' / 'modelo_b1.pth',         # Si 'modelo' está en la raíz de 'como contruir mi data set/'
-    API_DIR / 'modelo_b1.pth'                        # Por si se copia directo en la carpeta de la API
+    API_DIR / 'modelo_barrera1.pth',                 # Nombre real del archivo en el repositorio
+    API_DIR / 'modelo_b1.pth',                       # Nombre alternativo en la carpeta de la API
+    BASE_DIR / 'modelo_barrera1.pth',                # En el directorio padre
+    BASE_DIR / 'modelo_b1.pth',                      # Nombre alternativo en directorio padre
 ]
 
 MODEL_PATH = None
