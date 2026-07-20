@@ -1,11 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 python-multipart
 pymupdf
-easyocr
+pytesseract
 opencv-python-headless
 pandas
 pillow
-torch
-torchvision
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
 numpy
