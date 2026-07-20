@@ -7,10 +7,12 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import io
 import re
+import gc
 import fitz  # PyMuPDF para conversión acelerada de PDF a imágenes
 import cv2
 import torch
 torch.set_num_threads(1)
+torch.set_grad_enabled(False)
 import pytesseract
 import numpy as np
 import pandas as pd
@@ -266,10 +268,16 @@ async def predict_document(file: UploadFile = File(...)):
             if len(doc) == 0:
                 raise HTTPException(status_code=400, detail="El archivo PDF está vacío.")
             
-            # Renderizamos la primera página a alta resolución (300 DPI) para el OCR
+            # Renderizamos la primera página a resolución media (200 DPI) para ahorrar RAM
             pagina = doc[0]
-            pix = pagina.get_pixmap(dpi=300)
+            pix = pagina.get_pixmap(dpi=200)
             img_pil = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            
+            # Liberamos el documento PDF de memoria
+            doc.close()
+            del pix
+            del pagina
+            del doc
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Error al procesar el archivo PDF: {str(e)}")
     else:
@@ -278,6 +286,10 @@ async def predict_document(file: UploadFile = File(...)):
             img_pil = Image.open(io.BytesIO(file_bytes)).convert('RGB')
         except Exception as e:
             raise HTTPException(status_code=400, detail="Formato de imagen no legible.")
+
+    # Liberamos variables intermedias de memoria y forzamos recolección
+    del file_bytes
+    gc.collect()
 
     # Convertimos la imagen de PIL a array de OpenCV (escala de grises) para B2 y B3
     img_cv = np.array(img_pil)
