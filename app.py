@@ -54,8 +54,15 @@ if MODEL_PATH is None:
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Inicialización de la arquitectura MobileNetV3-Small (Barrera 1)
+# IMPORTANTE: El clasificador personalizado usa 256 neuronas ocultas, no las 1024 del default.
+# Debe coincidir EXACTAMENTE con la arquitectura usada durante el entrenamiento.
 model_b1 = models.mobilenet_v3_small(weights=None)
-model_b1.classifier[3] = torch.nn.Linear(model_b1.classifier[3].in_features, 2)
+model_b1.classifier = torch.nn.Sequential(
+    torch.nn.Linear(576, 256),
+    torch.nn.Hardswish(),
+    torch.nn.Dropout(p=0.2),
+    torch.nn.Linear(256, 2)
+)
 
 if MODEL_PATH.exists():
     model_b1.load_state_dict(torch.load(MODEL_PATH, map_location=device))
